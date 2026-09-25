@@ -38,6 +38,7 @@ keystore.properties
 .shots/
 .tmp_verify/
 .debug/
+release-artifacts/
 
 # AI agent configuration
 AGENTS.md
