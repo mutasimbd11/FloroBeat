@@ -53,11 +53,11 @@ val listenTogetherServer: String = (
     ).trim().trimEnd('/')
 
 android {
-    namespace = "com.music.bitchord"
+    namespace = "com.florosoft.florobeat"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.music.bitchord"
+        applicationId = "com.florosoft.florobeat"
         // 26 keeps reach wide; real-time blur (RenderEffect) kicks in on API 31+,
         // Haze falls back to a translucent scrim below that.
         minSdk = 26
@@ -100,8 +100,8 @@ android {
     productFlavors {
         create("dev") {
             dimension = "env"
-            applicationId = "com.dev.bitchord"
-            resValue("string", "app_name", "BitChord Dev")
+            applicationId = "com.dev.florobeat"
+            resValue("string", "app_name", "FloroBeat")
         }
         create("prod") {
             dimension = "env"
@@ -117,13 +117,22 @@ android {
         // fails the release build outright at validateSigningRelease — which is
         // exactly the failure the unsigned fallback above exists to avoid, so
         // the keystore has to be looked for rather than assumed.
-        val store = signing.getProperty("storeFile")?.let { rootProject.file(it) }
-        if (store != null && store.exists()) {
+        val storePath = signing.getProperty("storeFile") ?: System.getenv("KEYSTORE_FILE")
+        val store = storePath?.let { rootProject.file(it) }
+        val storePwd = signing.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD")
+        val alias = signing.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
+        val keyPwd = signing.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
+
+        if (store != null && store.exists() && !storePwd.isNullOrBlank() && !alias.isNullOrBlank() && !keyPwd.isNullOrBlank()) {
             create("release") {
                 storeFile = store
-                storePassword = signing.getProperty("storePassword")
-                keyAlias = signing.getProperty("keyAlias")
-                keyPassword = signing.getProperty("keyPassword")
+                storePassword = storePwd
+                keyAlias = alias
+                keyPassword = keyPwd
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
             }
         }
     }

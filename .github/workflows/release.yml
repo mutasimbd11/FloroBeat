@@ -1,0 +1,112 @@
+name: Release FloroBeat APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g. v1.2.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine Version
+        id: versioning
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          VERSION="${TAG#v}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Building FloroBeat version: $VERSION ($TAG)"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Secrets & Release Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+        run: |
+          echo "LASTFM_API_KEY=${LASTFM_API_KEY}" > local.properties
+          echo "LASTFM_SECRET=${LASTFM_SECRET}" >> local.properties
+
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > florobeat-release.jks
+            echo "storeFile=florobeat-release.jks" > keystore.properties
+            echo "storePassword=${KEYSTORE_PASSWORD}" >> keystore.properties
+            echo "keyAlias=${KEY_ALIAS}" >> keystore.properties
+            echo "keyPassword=${KEY_PASSWORD}" >> keystore.properties
+            echo "Release keystore configured successfully."
+          else
+            echo "Warning: KEYSTORE_BASE64 not set; build will produce unsigned release."
+          fi
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Build Signed Prod Release APK
+        run: ./gradlew assembleProdRelease --no-daemon
+
+      - name: Prepare Release Assets & Checksum
+        run: |
+          mkdir -p release-assets
+          APK_SRC=$(find app/build/outputs/apk/prod/release -name "*.apk" | head -n 1)
+          if [ -z "$APK_SRC" ]; then
+            echo "Error: No release APK found!"
+            exit 1
+          fi
+
+          APK_DEST="release-assets/FloroBeat-${VERSION}.apk"
+          cp "$APK_SRC" "$APK_DEST"
+
+          cd release-assets
+          sha256sum "FloroBeat-${VERSION}.apk" > "FloroBeat-${VERSION}.apk.sha256"
+          echo "Generated SHA-256 checksum:"
+          cat "FloroBeat-${VERSION}.apk.sha256"
+          cd ..
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: florobeat-release-${{ env.VERSION }}
+          path: release-assets/*
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: FloroBeat ${{ env.TAG }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-assets/FloroBeat-${{ env.VERSION }}.apk
+            release-assets/FloroBeat-${{ env.VERSION }}.apk.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
