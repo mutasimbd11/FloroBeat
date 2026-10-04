@@ -230,6 +230,9 @@ fun SearchScreen(
                 results is UiState.Error -> item { MessageState(results.message) }
                 results is UiState.Success -> {
                     val (tracks, sections, topResult) = searchProcessed ?: Triple(emptyList(), emptyList(), null)
+                    if (tracks.isEmpty() && sections.isEmpty() && topResult == null) {
+                        item { MessageState(stringResource(R.string.no_results)) }
+                    }
                     if (filter == SearchFilter.ALL && topResult != null) {
                         item(key = "search:top-result:${topResult.song.videoId}") {
                             TopResultCard(
@@ -256,7 +259,6 @@ fun SearchScreen(
                                     is SearchResult.Track -> "track_${row.song.videoId}"
                                     is SearchResult.Browse -> "browse_${row.item.browseId ?: row.item.title}_$index"
                                     is SearchResult.TopTrack -> "top_${row.song.videoId}"
-                                    else -> "search_row_$index"
                                 }
                             },
                         ) { index, row ->

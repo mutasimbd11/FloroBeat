@@ -321,7 +321,8 @@ open class DiscordWebSocket(
     open fun Payload.handleDispatch() {
         when (this.t.toString()) {
             "READY" -> {
-                val ready = json.decodeFromJsonElement<Ready>(this.d!!)
+                val data = this.d ?: return
+                val ready = json.decodeFromJsonElement<Ready>(data)
                 sessionId = ready.sessionId
                 resumeGatewayUrl = ready.resumeGatewayUrl + "/?v=9&encoding=json"
                 logger.info(
@@ -369,7 +370,8 @@ open class DiscordWebSocket(
     }
 
     private suspend fun Payload.handleHello() {
-        heartbeatInterval = json.decodeFromJsonElement<Heartbeat>(this.d!!).heartbeatInterval
+        val data = this.d ?: return
+        heartbeatInterval = json.decodeFromJsonElement<Heartbeat>(data).heartbeatInterval
         logger.info("Gateway: Setting heartbeatInterval=$heartbeatInterval")
         // Handshake first, then heartbeats — the order Discord's own client uses,
         // and not worth deviating from. A gateway that answers the handshake with

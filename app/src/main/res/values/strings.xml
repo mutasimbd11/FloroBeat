@@ -875,6 +875,8 @@
     <string name="listen_together_server_offline">Can’t be reached right now</string>
     <string name="listen_together_server_checking">Checking…</string>
     <string name="listen_together_server_unknown">Tap to check</string>
+    <string name="listen_together_status_page">Server status page</string>
+    <string name="listen_together_status_page_subtitle">Live uptime and latency monitoring</string>
     <string name="listen_together_custom_server">Use your own server</string>
     <string name="listen_together_custom_server_footer">Leave this empty to use the built-in server. If you run your own copy, everyone in the party has to be pointed at the same one.</string>
     <string name="listen_together_using_builtin">Using the built-in server</string>
@@ -1009,5 +1011,69 @@
     <string name="about_florobeat">About FloroBeat</string>
     <string name="about_florobeat_subtitle">v%1$s · Developed &amp; maintained by FloroSoft</string>
     <string name="florosoft_credit">Developed &amp; maintained by FloroSoft</string>
+    <string name="updates_channel_name">FloroBeat Updates</string>
+
+    <string name="updates_channel_description">New releases, important announcements, and major feature updates</string>
+    <string name="push_notifications">Push notifications</string>
+    <string name="push_notifications_enabled_subtitle">Receive alerts for releases and important announcements</string>
+    <string name="push_notifications_disabled_subtitle">Notifications are turned off</string>
+    <string name="push_notifications_permission_required">Permission required to show update alerts</string>
+
+    <!-- FloroBeat Real-Time Messenger -->
+    <string name="messenger_title">FloroBeat Chat</string>
+    <string name="messages">Messages</string>
+    <string name="messenger_connecting">Connecting…</string>
+    <string name="search_users">Search users</string>
+    <string name="search_users_hint">Search by name or @handle…</string>
+    <string name="no_users_found">No users found</string>
+    <string name="no_conversations_yet">No conversations yet</string>
+    <string name="no_conversations_subtitle">Connect with other music lovers on FloroBeat and share what you\'re listening to.</string>
+    <string name="discover_users">Discover Users</string>
+    <string name="message_action">Send Message</string>
+    <string name="type_message">Type a message…</string>
+    <string name="user_blocked_input_disabled">You have blocked this user</string>
+    <string name="replying_to">Replying to</string>
+    <string name="delete_message">Delete message</string>
+    <string name="delete_for_me">Delete for me</string>
+    <string name="delete_for_everyone">Delete for everyone</string>
+    <string name="copy_text">Copy text</string>
+    <string name="block_user">Block user</string>
+    <string name="unblock_user">Unblock user</string>
+    <string name="report_user">Report user</string>
+    <string name="user_profile">User Profile</string>
+    <string name="my_profile">My Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="display_name">Display Name</string>
+    <string name="username_handle">Username</string>
+    <string name="bio">Bio</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="typing">Typing…</string>
+    <string name="last_seen">Last seen</string>
+    <string name="status_sending">Sending</string>
+    <string name="status_sent">Sent</string>
+    <string name="status_delivered">Delivered</string>
+    <string name="status_read">Read</string>
+    <string name="status_failed">Failed</string>
+    <string name="reply">Reply</string>
+    <string name="more_options">More options</string>
+    <string name="clear_chat">Clear chat</string>
+    <string name="clear_chat_title">Clear conversation?</string>
+    <string name="clear_chat_message">This will delete all messages in this conversation from your device.</string>
+    <string name="no_messages_yet_title">Start chatting with %1$s</string>
+    <string name="no_messages_yet_subtitle">Say hello or share a favorite track!</string>
+    <string name="report_user_title">Report %1$s</string>
+    <string name="report_reason_spam">Spam or advertising</string>
+    <string name="report_reason_harassment">Harassment or bullying</string>
+    <string name="report_reason_inappropriate">Inappropriate or harmful content</string>
+    <string name="report_reason_impersonation">Impersonation</string>
+    <string name="report_reason_other">Other issue</string>
+    <string name="report_details_hint">Additional details (optional)…</string>
+    <string name="submit_report">Submit Report</string>
+    <string name="chat_server_setting">Messaging Server</string>
+    <string name="chat_server_subtitle">Custom real-time messaging WebSocket &amp; API server</string>
+    <string name="send">Send</string>
+    <string name="messenger_offline_notice">Offline · Messages will sync once reconnected</string>
 
 </resources>
+

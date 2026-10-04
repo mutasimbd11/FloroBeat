@@ -5680,24 +5680,26 @@ class PlaybackService : MediaLibraryService() {
                         local.forEach { songCache[it.videoId] = it }
                         resolved.addAll(local.map { it.toMediaItem() })
                     }
-                    songCache.containsKey(id) -> {
-                        resolved.add(songCache[id]!!.toMediaItem())
+                    songCache[id] != null -> {
+                        songCache[id]?.let { resolved.add(it.toMediaItem()) }
                     }
                     item.localConfiguration != null -> {
                         resolved.add(item)
                     }
                     item.requestMetadata.mediaUri != null -> {
-                        val uri = item.requestMetadata.mediaUri!!
-                        val videoId = uri.getQueryParameter("v") ?: uri.lastPathSegment.orEmpty()
-                        if (videoId.isNotEmpty() && !videoId.startsWith("http")) {
-                            val cached = songCache[videoId]
-                            if (cached != null) {
-                                resolved.add(cached.toMediaItem())
+                        val uri = item.requestMetadata.mediaUri
+                        if (uri != null) {
+                            val videoId = uri.getQueryParameter("v") ?: uri.lastPathSegment.orEmpty()
+                            if (videoId.isNotEmpty() && !videoId.startsWith("http")) {
+                                val cached = songCache[videoId]
+                                if (cached != null) {
+                                    resolved.add(cached.toMediaItem())
+                                } else {
+                                    resolved.add(Song(videoId = videoId, title = item.mediaMetadata.title?.toString() ?: "Track", artist = item.mediaMetadata.artist?.toString() ?: "Artist", thumbnailUrl = null).toMediaItem())
+                                }
                             } else {
-                                resolved.add(Song(videoId = videoId, title = item.mediaMetadata.title?.toString() ?: "Track", artist = item.mediaMetadata.artist?.toString() ?: "Artist", thumbnailUrl = null).toMediaItem())
+                                resolved.add(item.buildUpon().setUri(uri).build())
                             }
-                        } else {
-                            resolved.add(item.buildUpon().setUri(uri).build())
                         }
                     }
                     else -> {

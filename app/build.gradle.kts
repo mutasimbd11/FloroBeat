@@ -8,6 +8,21 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+// Google Services plugin is applied automatically whenever google-services.json is present in the app module.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+
+    // If google-services.json does not contain client for com.dev.florobeat,
+    // gracefully bypass dev Google Services task so local dev builds (assembleDevDebug) succeed.
+    tasks.matching { it.name.startsWith("processDev") && it.name.endsWith("GoogleServices") }.configureEach {
+        val gservices = file("google-services.json")
+        if (gservices.exists() && !gservices.readText().contains("\"com.dev.florobeat\"")) {
+            enabled = false
+        }
+    }
+}
+
+
 /**
  * Signing details, kept out of the repository in `keystore.properties`
  * (see keystore.properties.example). Absent on a fresh checkout, in which case
@@ -49,7 +64,13 @@ val lastfmSecret: String = (
 val listenTogetherServer: String = (
     localProps.getProperty("LISTEN_TOGETHER_SERVER")
         ?: System.getenv("LISTEN_TOGETHER_SERVER")
-        ?: ""
+        ?: "https://florobeat-party.onrender.com"
+    ).trim().trimEnd('/')
+
+val messagingServer: String = (
+    localProps.getProperty("MESSAGING_SERVER")
+        ?: System.getenv("MESSAGING_SERVER")
+        ?: "https://florobeat-backend.onrender.com"
     ).trim().trimEnd('/')
 
 android {
@@ -62,8 +83,8 @@ android {
         // Haze falls back to a translucent scrim below that.
         minSdk = 26
         targetSdk = 36
-        versionCode = 17
-        versionName = "1.6"
+        versionCode = 18
+        versionName = "1.6.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -74,6 +95,11 @@ android {
             "String",
             "LISTEN_TOGETHER_SERVER",
             "\"${listenTogetherServer.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
+        )
+        buildConfigField(
+            "String",
+            "MESSAGING_SERVER",
+            "\"${messagingServer.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
         )
     }
 
@@ -319,6 +345,11 @@ dependencies {
     // files, which would put an offline conversion step between the model and
     // the app for a saving that does not matter in a self-distributed APK.
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.28.0")
+
+    // ---- Firebase Cloud Messaging (FCM) ----
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
 
     testImplementation("junit:junit:4.13.2")
     // A real HTTP server for the addon tests. The addon protocol is entirely

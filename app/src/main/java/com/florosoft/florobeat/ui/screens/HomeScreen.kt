@@ -199,7 +199,15 @@ fun HomeScreen(
                         }
                         is UiState.Success -> {
                             val shelves = state.data
-                            if (processed != null) {
+                            if (shelves.isEmpty()) {
+                                item(key = "home_empty_state") {
+                                    MessageState(
+                                        message = stringResource(R.string.no_results),
+                                        actionLabel = stringResource(R.string.retry),
+                                        onAction = onRefresh,
+                                    )
+                                }
+                            } else if (processed != null) {
 
                             // 1. Featured Hero Card (Prominently leads the Home screen)
                             if (processed.featuredItem != null) {

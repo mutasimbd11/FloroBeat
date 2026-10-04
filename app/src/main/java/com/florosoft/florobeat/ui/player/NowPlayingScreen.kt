@@ -1440,9 +1440,10 @@ fun NowPlayingScreen(
     var pendingSeek by remember { mutableStateOf<Float?>(null) }
 
     val fraction = if (durationMs > 0) positionMs.toFloat() / durationMs else 0f
+    val currentPendingSeek = pendingSeek
     val shown = when {
         scrubbing -> scrubValue
-        pendingSeek != null -> pendingSeek!!
+        currentPendingSeek != null -> currentPendingSeek
         else -> fraction.coerceIn(0f, 1f)
     }
 

@@ -845,7 +845,9 @@ object ListenTogether {
      * is a supported state: a checkout without that line builds fine and simply
      * asks for an address.
      */
-    private val DEFAULT_SERVER: String = BuildConfig.LISTEN_TOGETHER_SERVER
+    private val DEFAULT_SERVER: String = BuildConfig.LISTEN_TOGETHER_SERVER.ifBlank {
+        "https://florobeat-party.onrender.com"
+    }
     private const val PING_INTERVAL_MS = 15_000L
     private const val REPORT_INTERVAL_MS = 10_000L
     private const val HEALTH_TIMEOUT_MS = 45_000L

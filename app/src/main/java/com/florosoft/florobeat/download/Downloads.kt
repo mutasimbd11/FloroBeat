@@ -1129,8 +1129,8 @@ object Downloads {
      * right direction.
      */
     private fun Exception.friendly(): String = when {
-        (this is IllegalStateException || this is IllegalArgumentException) &&
-            !message.isNullOrBlank() -> message!!
+        (this is IllegalStateException || this is IllegalArgumentException) && !message.isNullOrBlank() ->
+            message ?: "Download failed — check your connection"
         else -> "Download failed — check your connection"
     }
 

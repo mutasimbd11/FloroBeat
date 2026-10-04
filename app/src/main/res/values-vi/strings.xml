@@ -1023,6 +1023,10 @@
 
     <string name="listen_together_server_unknown">Tap to check</string>
 
+    <string name="listen_together_status_page">Trang trạng thái máy chủ</string>
+
+    <string name="listen_together_status_page_subtitle">Theo dõi thời gian hoạt động và độ trễ trực tiếp</string>
+
     <string name="listen_together_custom_server">Use your own server</string>
 
     <string name="listen_together_custom_server_footer">Leave this empty to use the built-in server. If you run your own copy, everyone in the party has to be pointed at the same one.</string>
@@ -1100,5 +1104,69 @@
     <string name="explore_by_mood">Khám phá theo tâm trạng</string>
     <string name="daily_mix">Daily Mix</string>
     <string name="your_vibe_every_day">Giai điệu của bạn • Mỗi ngày</string>
+
+    <!-- Push Notifications & FCM -->
+    <string name="updates_channel_name">Cập nhật FloroBeat</string>
+    <string name="updates_channel_description">Bản phát hành mới, thông báo quan trọng và cập nhật tính năng chính</string>
+    <string name="push_notifications">Thông báo đẩy</string>
+    <string name="push_notifications_enabled_subtitle">Nhận thông báo về bản phát hành và các thông báo quan trọng</string>
+    <string name="push_notifications_disabled_subtitle">Thông báo đã bị tắt</string>
+    <string name="push_notifications_permission_required">Cần cấp quyền để hiển thị thông báo cập nhật</string>
+
+    <!-- FloroBeat Real-Time Messenger -->
+    <string name="messenger_title">Trò chuyện FloroBeat</string>
+    <string name="messages">Tin nhắn</string>
+    <string name="messenger_connecting">Đang kết nối…</string>
+    <string name="search_users">Tìm kiếm người dùng</string>
+    <string name="search_users_hint">Tìm kiếm theo tên hoặc @tên_người_dùng…</string>
+    <string name="no_users_found">Không tìm thấy người dùng</string>
+    <string name="no_conversations_yet">Chưa có cuộc trò chuyện nào</string>
+    <string name="no_conversations_subtitle">Kết nối với những người yêu âm nhạc trên FloroBeat và chia sẻ những bài hát bạn đang nghe.</string>
+    <string name="discover_users">Khám phá người dùng</string>
+    <string name="message_action">Gửi tin nhắn</string>
+    <string name="type_message">Nhập tin nhắn…</string>
+    <string name="user_blocked_input_disabled">Bạn đã chặn người dùng này</string>
+    <string name="replying_to">Đang trả lời</string>
+    <string name="delete_message">Xóa tin nhắn</string>
+    <string name="delete_for_me">Xóa ở phía tôi</string>
+    <string name="delete_for_everyone">Xóa cho mọi người</string>
+    <string name="copy_text">Sao chép văn bản</string>
+    <string name="block_user">Chặn người dùng</string>
+    <string name="unblock_user">Bỏ chặn người dùng</string>
+    <string name="report_user">Báo cáo người dùng</string>
+    <string name="user_profile">Hồ sơ người dùng</string>
+    <string name="my_profile">Hồ sơ của tôi</string>
+    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="display_name">Tên hiển thị</string>
+    <string name="username_handle">Tên người dùng</string>
+    <string name="bio">Tiểu sử</string>
+    <string name="online">Trực tuyến</string>
+    <string name="offline">Ngoại tuyến</string>
+    <string name="typing">Đang soạn tin…</string>
+    <string name="last_seen">Lần cuối</string>
+    <string name="status_sending">Đang gửi</string>
+    <string name="status_sent">Đã gửi</string>
+    <string name="status_delivered">Đã nhận</string>
+    <string name="status_read">Đã xem</string>
+    <string name="status_failed">Thất bại</string>
+    <string name="reply">Trả lời</string>
+    <string name="more_options">Tùy chọn khác</string>
+    <string name="clear_chat">Xóa cuộc trò chuyện</string>
+    <string name="clear_chat_title">Xóa cuộc trò chuyện?</string>
+    <string name="clear_chat_message">Thao tác này sẽ xóa tất cả tin nhắn trong cuộc trò chuyện này khỏi thiết bị của bạn.</string>
+    <string name="no_messages_yet_title">Bắt đầu trò chuyện với %1$s</string>
+    <string name="no_messages_yet_subtitle">Hãy gửi lời chào hoặc chia sẻ bài hát yêu thích!</string>
+    <string name="report_user_title">Báo cáo %1$s</string>
+    <string name="report_reason_spam">Spam hoặc quảng cáo</string>
+    <string name="report_reason_harassment">Quấy rối hoặc bắt nạt</string>
+    <string name="report_reason_inappropriate">Nội dung không phù hợp hoặc có hại</string>
+    <string name="report_reason_impersonation">Mạo danh</string>
+    <string name="report_reason_other">Vấn đề khác</string>
+    <string name="report_details_hint">Chi tiết bổ sung (tùy chọn)…</string>
+    <string name="submit_report">Gửi báo cáo</string>
+    <string name="chat_server_setting">Máy chủ nhắn tin</string>
+    <string name="chat_server_subtitle">Máy chủ WebSocket &amp; API nhắn tin thời gian thực tùy chỉnh</string>
+    <string name="send">Gửi</string>
+    <string name="messenger_offline_notice">Ngoại tuyến · Tin nhắn sẽ đồng bộ khi kết nối lại</string>
 
 </resources>

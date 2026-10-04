@@ -2,10 +2,17 @@ package com.florosoft.florobeat.ui.screens
 
 import android.content.Context
 import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+import androidx.core.app.NotificationManagerCompat
 import android.media.audiofx.AudioEffect
+
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
+import com.florosoft.florobeat.notifications.FloroBeatNotificationManager
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -58,6 +65,8 @@ import androidx.compose.material.icons.rounded.Groups
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Notifications
+
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.LocalOffer
@@ -221,7 +230,9 @@ fun SettingsScreen(
     val wifiOnlyDownloads by AppSettings.wifiOnlyDownloads.collectAsStateWithLifecycle()
     val exportDownloads by AppSettings.exportDownloads.collectAsStateWithLifecycle()
     val stopOnTaskRemoved by AppSettings.stopOnTaskRemoved.collectAsStateWithLifecycle()
+    val pushNotificationsEnabled by AppSettings.pushNotificationsEnabled.collectAsStateWithLifecycle()
     val hideVolumeBar by AppSettings.hideVolumeBar.collectAsStateWithLifecycle()
+
     val swipeToPlayNext by AppSettings.swipeToPlayNext.collectAsStateWithLifecycle()
     val dontRepeatSuggestions by AppSettings.dontRepeatSuggestions.collectAsStateWithLifecycle()
     val preferMusicOnly by AppSettings.preferMusicOnly.collectAsStateWithLifecycle()
@@ -1234,7 +1245,73 @@ fun SettingsScreen(
                     onClick = { AppSettings.setHideVolumeBar(!hideVolumeBar) },
                 )
             }
+            val pushNotificationsTitle = stringResource(R.string.push_notifications)
+            row(pushNotificationsTitle, "notification", "updates", "firebase", "fcm", "announcements") {
+                val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    NotificationManagerCompat.from(context).areNotificationsEnabled()
+                }
+
+                val permissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission(),
+                ) { isGranted ->
+                    if (isGranted) {
+                        FloroBeatNotificationManager.handlePermissionGranted(context)
+                    } else {
+                        FloroBeatNotificationManager.handlePermissionDenied()
+                    }
+                }
+
+                SettingsRow(
+                    icon = Icons.Rounded.Notifications,
+                    title = pushNotificationsTitle,
+                    subtitle = if (!hasPermission) {
+                        stringResource(R.string.push_notifications_permission_required)
+                    } else if (pushNotificationsEnabled) {
+                        stringResource(R.string.push_notifications_enabled_subtitle)
+                    } else {
+                        stringResource(R.string.push_notifications_disabled_subtitle)
+                    },
+                    trailing = {
+                        Switch(
+                            checked = pushNotificationsEnabled && hasPermission,
+                            onCheckedChange = { checked ->
+                                if (checked) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasPermission) {
+                                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    } else {
+                                        FloroBeatNotificationManager.activateNotificationSystem(context)
+                                    }
+                                } else {
+                                    AppSettings.setPushNotificationsEnabled(false)
+                                }
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        )
+                    },
+                    onClick = {
+                        val willEnable = !(pushNotificationsEnabled && hasPermission)
+                        if (willEnable) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasPermission) {
+                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                FloroBeatNotificationManager.activateNotificationSystem(context)
+                            }
+                        } else {
+                            AppSettings.setPushNotificationsEnabled(false)
+                        }
+                    },
+                )
+            }
         }
+
 
         SearchableSettingsGroup(search, header = stringResource(R.string.language)) {
             val appLanguageTitle = stringResource(R.string.app_language)
@@ -1521,9 +1598,9 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.lastfm_login)) },
             text = {
                 Column {
-                    if (lastfmError != null) {
+                    lastfmError?.let { errorText ->
                         Text(
-                            text = lastfmError!!,
+                            text = errorText,
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(bottom = 8.dp),

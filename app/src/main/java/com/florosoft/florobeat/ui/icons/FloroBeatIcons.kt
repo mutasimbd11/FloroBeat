@@ -653,6 +653,31 @@ object FloroBeatIcons {
         }.build()
     }
 
+    val Chat: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "fb_chat",
+            defaultWidth = 24.dp, defaultHeight = 24.dp,
+            viewportWidth = 24f, viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = stroke,
+                strokeLineWidth = STROKE,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round,
+            ) {
+                moveTo(12f, 3.5f)
+                quadTo(19.5f, 3.5f, 19.5f, 9.8f)
+                quadTo(19.5f, 16.2f, 12f, 16.2f)
+                lineTo(7.5f, 16.2f)
+                lineTo(4.5f, 19.5f)
+                lineTo(4.5f, 14.5f)
+                quadTo(4.5f, 12.5f, 4.5f, 9.8f)
+                quadTo(4.5f, 3.5f, 12f, 3.5f)
+                close()
+            }
+        }.build()
+    }
+
     val Equalizer: ImageVector by lazy {
         ImageVector.Builder(
             name = "fb_equalizer",

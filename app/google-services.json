@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1051847198064",
+    "project_id": "florobeat-app",
+    "storage_bucket": "florobeat-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051847198064:android:90f6cc09ff1ca60ddb7bb5",
+        "android_client_info": {
+          "package_name": "com.florosoft.florobeat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyZhJh1E14qwQrCUEOIhe-Rxvf3kpugrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

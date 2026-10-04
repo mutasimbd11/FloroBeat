@@ -1,6 +1,8 @@
 package com.florosoft.florobeat.ui.screens
 
 import android.content.Intent
+import android.net.Uri
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -315,6 +317,7 @@ private fun ServerHealthRow(
     status: ListenTogether.ServerStatus,
     onRecheck: () -> Unit,
 ) {
+    val context = LocalContext.current
     SettingsGroup {
         SettingsRow(
             icon = when (status.health) {
@@ -335,6 +338,18 @@ private fun ServerHealthRow(
             },
             trailing = if (status.health == ListenTogether.Health.CHECKING) ({ Spinner() }) else null,
             onClick = onRecheck,
+        )
+        SettingsRow(
+            icon = Icons.AutoMirrored.Rounded.OpenInNew,
+            title = stringResource(R.string.listen_together_status_page),
+            subtitle = stringResource(R.string.listen_together_status_page_subtitle),
+            onClick = {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://stats.uptimerobot.com/bTQfz8N2MI"),
+                )
+                context.startActivity(intent)
+            },
         )
     }
 }

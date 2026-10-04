@@ -56,6 +56,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from .messaging import router as messaging_router
+
 if config.ALLOWED_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
@@ -64,6 +66,8 @@ if config.ALLOWED_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+app.include_router(messaging_router)
 
 
 @app.exception_handler(PartyError)

@@ -239,6 +239,30 @@
             android:foregroundServiceType="dataSync" />
 
         <!--
+          Firebase Cloud Messaging service.
+          Handles FCM message delivery, background payloads, and token refresh.
+        -->
+        <service
+            android:name=".notifications.FloroBeatFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Default notification icon and accent color for FCM messages -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification_logo" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/floro_mint" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="florobeat_updates" />
+
+
+        <!--
           Home-screen widgets. Two providers so the picker lists a 2×2 and a 4×2,
           both of which are the same widget resized — see MediaWidget.
 

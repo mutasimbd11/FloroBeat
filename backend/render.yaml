@@ -10,7 +10,7 @@
 # disjoint set of parties. See app/party.py, PartyStore.
 services:
   - type: web
-    name: florobeat-listen-together
+    name: florobeat-backend
     runtime: python
     plan: free
     rootDir: backend

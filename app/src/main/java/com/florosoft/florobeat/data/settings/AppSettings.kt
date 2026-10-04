@@ -522,6 +522,10 @@ object AppSettings {
     /** Disk budget for cached audio. [AudioCache][com.florosoft.florobeat.playback.AudioCache] evicts past it. */
     val audioCacheLimitBytes = MutableStateFlow(DEFAULT_CACHE_LIMIT_BYTES)
 
+    /** Push notifications for updates and announcements via Firebase Cloud Messaging. */
+    val pushNotificationsEnabled = MutableStateFlow(true)
+
+
     // ── Replay ──────────────────────────────────────────────────────────────
 
     /**
@@ -762,6 +766,8 @@ object AppSettings {
         showNerdStats.value = prefs.getBoolean(KEY_NERD_STATS, false)
         reduceAnimation.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
         highPerformanceMode.value = prefs.getBoolean(KEY_HIGH_PERFORMANCE_MODE, true)
+        pushNotificationsEnabled.value = prefs.getBoolean(KEY_PUSH_NOTIFICATIONS_ENABLED, true)
+
         performanceRefreshRate.value = normalizePerformanceRefreshRate(
             prefs.getInt(KEY_PERFORMANCE_REFRESH_RATE, DEFAULT_PERFORMANCE_REFRESH_RATE),
         )
@@ -1118,6 +1124,28 @@ object AppSettings {
         themeMode.value = value
         prefs.edit().putString(KEY_THEME, value.name).apply()
     }
+
+    fun setPushNotificationsEnabled(enabled: Boolean) {
+        pushNotificationsEnabled.value = enabled
+        prefs.edit().putBoolean(KEY_PUSH_NOTIFICATIONS_ENABLED, enabled).apply()
+        com.florosoft.florobeat.notifications.NotificationTopicManager.syncSubscriptions(enabled)
+    }
+
+    /**
+     * Whether the first-launch notification permission request has already been shown
+     * on this installation.
+     */
+    fun hasRequestedNotificationPermission(): Boolean =
+        prefs.getBoolean(KEY_NOTIFICATION_PERMISSION_REQUESTED, false)
+
+    /**
+     * Records that notification permission onboarding has been presented.
+     */
+    fun setNotificationPermissionRequested(requested: Boolean = true) {
+        prefs.edit().putBoolean(KEY_NOTIFICATION_PERMISSION_REQUESTED, requested).apply()
+    }
+
+
 
     fun setReduceAnimation(value: Boolean) {
         reduceAnimation.value = value
@@ -1735,6 +1763,9 @@ object AppSettings {
     private const val KEY_EQ_BANDS = "equalizer_bands"
     private const val KEY_SPEED = "playback_speed"
     private const val KEY_THEME = "theme_mode"
+    private const val KEY_PUSH_NOTIFICATIONS_ENABLED = "push_notifications_enabled"
+    private const val KEY_NOTIFICATION_PERMISSION_REQUESTED = "notification_permission_requested"
+
     private const val KEY_AUTOPLAY = "autoplay"
     private const val KEY_SHUFFLE_ENABLED = "shuffle_enabled"
     private const val KEY_REPEAT_MODE = "repeat_mode"

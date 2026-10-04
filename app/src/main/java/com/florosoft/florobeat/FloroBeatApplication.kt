@@ -61,12 +61,15 @@ class FloroBeatApplication : Application(), SingletonImageLoader.Factory {
         AppSettings.init(this)
         com.florosoft.florobeat.data.HomeFeedCache.init(this)
         ListenTogether.init(this)
+        com.florosoft.florobeat.data.messenger.MessengerRepository.init(this)
         SourceRegistry.init(this)
         SearchHistory.init(this)
         LastPlayed.init(this)
         OriginalVersion.init(this)
         Downloads.init(this)
         AudioCache.init(this)
+        com.florosoft.florobeat.notifications.FloroBeatNotificationManager.createNotificationChannels(this)
+        com.florosoft.florobeat.notifications.FcmTokenManager.init(this)
 
         // Non-critical background initializations off the main UI thread
         CoroutineScope(Dispatchers.IO).launch {
@@ -75,7 +78,11 @@ class FloroBeatApplication : Application(), SingletonImageLoader.Factory {
             CanvasCache.init(this@FloroBeatApplication)
             SpotifyToken.init(this@FloroBeatApplication)
             initLastfm()
+            com.florosoft.florobeat.notifications.NotificationTopicManager.syncSubscriptions(
+                AppSettings.pushNotificationsEnabled.value,
+            )
         }
+
 
         if (AppSettings.consumeVersionUpdate(BuildConfig.VERSION_CODE)) {
             AudioCache.clear()

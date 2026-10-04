@@ -484,7 +484,8 @@ object ListeningStats {
                 val date = "${bucket.month}-%02d".format(day)
                 days[date] = (days[date] ?: 0L) + ms
             }
-            if (earliest == null || bucket.month < earliest!!) earliest = bucket.month
+            val currentEarliest = earliest
+            if (currentEarliest == null || bucket.month < currentEarliest) earliest = bucket.month
         }
 
         fun toSummary(period: ReplayPeriod, today: LocalDate): ReplaySummary {
