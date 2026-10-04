@@ -21,9 +21,6 @@ class NotificationPayloadTest {
         assertEquals(NotificationType.MAINTENANCE, NotificationType.fromString("MAINTENANCE"))
         assertEquals(NotificationType.FEATURE, NotificationType.fromString("FEATURE"))
         assertEquals(NotificationType.IMPORTANT, NotificationType.fromString("IMPORTANT"))
-        assertEquals(NotificationType.CHAT, NotificationType.fromString("CHAT"))
-        assertEquals(NotificationType.CHAT, NotificationType.fromString("MESSAGE"))
-        assertEquals(NotificationType.CHAT, NotificationType.fromString("chat"))
     }
 
     @Test

@@ -64,13 +64,7 @@ val lastfmSecret: String = (
 val listenTogetherServer: String = (
     localProps.getProperty("LISTEN_TOGETHER_SERVER")
         ?: System.getenv("LISTEN_TOGETHER_SERVER")
-        ?: "https://florobeat-party.onrender.com"
-    ).trim().trimEnd('/')
-
-val messagingServer: String = (
-    localProps.getProperty("MESSAGING_SERVER")
-        ?: System.getenv("MESSAGING_SERVER")
-        ?: "https://florobeat-backend.onrender.com"
+        ?: "https://party.shongho.com"
     ).trim().trimEnd('/')
 
 android {
@@ -95,11 +89,6 @@ android {
             "String",
             "LISTEN_TOGETHER_SERVER",
             "\"${listenTogetherServer.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
-        )
-        buildConfigField(
-            "String",
-            "MESSAGING_SERVER",
-            "\"${messagingServer.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
         )
     }
 

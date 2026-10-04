@@ -213,11 +213,6 @@ import com.florosoft.florobeat.ui.components.TranslationLanguageDialog
 import com.florosoft.florobeat.ui.components.LyricsSourcesDialog
 import com.florosoft.florobeat.ui.components.UpdateAvailableDialog
 import com.florosoft.florobeat.ui.icons.FloroBeatIcons
-import com.florosoft.florobeat.data.messenger.MessengerRepository
-import com.florosoft.florobeat.data.messenger.MessengerUser
-import com.florosoft.florobeat.ui.messenger.ChatScreen
-import com.florosoft.florobeat.ui.messenger.ConversationsScreen
-import com.florosoft.florobeat.ui.messenger.UserProfileDialog
 import androidx.media3.common.Player
 import com.florosoft.florobeat.data.YtMusicRepository
 import com.florosoft.florobeat.ui.player.NowPlayingScreen
@@ -487,9 +482,6 @@ private fun FloroBeatApp(
     var showListenTogether by remember { mutableStateOf(false) }
     var showEqualizer by remember { mutableStateOf(false) }
     var showSpotifyCanvasAuth by remember { mutableStateOf(false) }
-    var activeChatConversationId by rememberSaveable { mutableStateOf<String?>(null) }
-    var activeChatOtherUser by remember { mutableStateOf<MessengerUser?>(null) }
-    var showOwnProfile by remember { mutableStateOf(false) }
     
     // Hosted here rather than inside SourcesScreen so its frosted card has
     // something to blur: that screen is drawn inside the `hazeSource` subtree,
@@ -727,21 +719,6 @@ private fun FloroBeatApp(
             route.contains("search") -> {
                 showSettings = false
                 selectedTab = TAB_SEARCH
-            }
-            route.contains("chat") || route.contains("message") || payload.type == NotificationType.CHAT -> {
-                showSettings = false
-                selectedTab = TAB_MESSAGES
-                val targetId = payload.rawData["conversation_id"] ?: payload.rawData["target_id"]
-                if (!targetId.isNullOrBlank()) {
-                    activeChatConversationId = targetId
-                    val senderId = payload.rawData["sender_id"] ?: payload.rawData["user_id"] ?: targetId
-                    val senderName = payload.rawData["sender_name"] ?: payload.title.ifBlank { "User" }
-                    activeChatOtherUser = MessengerUser(
-                        id = senderId,
-                        username = senderName,
-                        displayName = senderName,
-                    )
-                }
             }
             else -> {
                 showSettings = false
@@ -1009,18 +986,16 @@ private fun FloroBeatApp(
     val playLabel = stringResource(R.string.home)
     val exploreLabel = stringResource(R.string.discover)
     val libraryLabel = stringResource(R.string.library)
-    val messagesLabel = stringResource(R.string.messages)
     val searchLabel = stringResource(R.string.search)
     val historyLabel = stringResource(R.string.history)
     val replayLabel = stringResource(R.string.replay)
     val queueLabel = stringResource(R.string.queue)
     val sharedLinkLabel = stringResource(R.string.shared_link)
-    val tabs = remember(playLabel, exploreLabel, libraryLabel, messagesLabel, searchLabel) {
+    val tabs = remember(playLabel, exploreLabel, libraryLabel, searchLabel) {
         listOf(
             BottomTab(playLabel, FloroBeatIcons.Home),
             BottomTab(exploreLabel, FloroBeatIcons.Explore),
             BottomTab(libraryLabel, FloroBeatIcons.Library),
-            BottomTab(messagesLabel, FloroBeatIcons.Chat),
             BottomTab(searchLabel, FloroBeatIcons.Search),
         )
     }
@@ -2154,13 +2129,9 @@ private fun FloroBeatApp(
         BackHandler(
             enabled = detail == null && !showSettings && !showAccountScrobbling &&
                 !showSources && !showListenTogether && !showEqualizer && !showReplay && selectedMoodGenre == null &&
-                selectedTab != TAB_HOME && activeChatConversationId == null,
+                selectedTab != TAB_HOME,
         ) {
             selectedTab = TAB_HOME
-        }
-        BackHandler(enabled = activeChatConversationId != null) {
-            activeChatConversationId = null
-            activeChatOtherUser = null
         }
         BackHandler(enabled = showUpdateDialog) { showUpdateDialog = false }
         BackHandler(enabled = showListenBrainzLogin) { showListenBrainzLogin = false }
@@ -2756,14 +2727,6 @@ private fun FloroBeatApp(
                             onTypeaheadLongPress = openSongMenu,
                             contentPadding = listPadding,
                         )
-                        TAB_MESSAGES -> ConversationsScreen(
-                            onConversationClick = { convId, otherUser ->
-                                activeChatConversationId = convId
-                                activeChatOtherUser = otherUser
-                            },
-                            onOpenOwnProfile = { showOwnProfile = true },
-                            contentPadding = listPadding,
-                        )
                         else -> LibraryScreen(
                             signedIn = signedIn,
                             state = libraryState,
@@ -2791,10 +2754,11 @@ private fun FloroBeatApp(
 
                 // Every top bar is a fade rather than a pane — see [TopFadeBlur].
                 // Drawn before the bar so the bar's own content sits on top of it.
-                // Hidden on the Search and Messages tabs: their headers sit cleanly under the status bar inset.
+                // Hidden on the Search tab: Search's own field sits up into that
+                // space instead (see `SearchScreen`).
                 val isDetailVisible = detail != null && !isLocalDetail && !showSettings &&
                     !showAccountScrobbling && !showSources && !showListenTogether && !showEqualizer && !showReplay
-                val isSearchVisible = (selectedTab == TAB_SEARCH || selectedTab == TAB_MESSAGES) && detail == null &&
+                val isSearchVisible = selectedTab == TAB_SEARCH && detail == null &&
                     !showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showEqualizer &&
                     !showReplay && !showDiscord && !showHistory && libraryShowAll == null
                 if (!isSearchVisible) TopFadeBlur(
@@ -2836,11 +2800,6 @@ private fun FloroBeatApp(
                             .align(Alignment.TopCenter)
                             .statusBarsPadding(),
                     )
-                } else if (selectedTab == TAB_MESSAGES && detail == null &&
-                    !showSettings && !showAccountScrobbling && !showSources && !showListenTogether && !showEqualizer &&
-                    !showReplay && !showDiscord && !showHistory && libraryShowAll == null
-                ) {
-                    // ConversationsScreen renders its own header and status bar padding
                 } else {
                     FrostedTopBar(
                         title = when {
@@ -3040,115 +2999,85 @@ private fun FloroBeatApp(
                     }
                 }
 
-                if (activeChatConversationId == null) {
-                    if (glassActive) Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .widthIn(max = FLOATING_BAR_MAX_WIDTH)
-                            .fillMaxWidth(),
-                    ) {
-                        QueueActionNoticeHost(queueNotice)
-                        // Liquid glass replaces the two stacked bars with the single
-                        // component they are stacked to imitate: the now playing
-                        // controls dock into the tab bar rather than riding above it,
-                        // and the pair folds together on scroll. See [GlassNavBar].
-                        GlassNavBar(
-                            tabs = tabs,
-                            selectedIndex = selectedTab,
-                            onTabSelected = onTabSelected,
-                            scrollConnection = navBarScroll,
-                            song = player.song?.takeUnless { playerDocked },
+                if (glassActive) Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .widthIn(max = FLOATING_BAR_MAX_WIDTH)
+                        .fillMaxWidth(),
+                ) {
+                    QueueActionNoticeHost(queueNotice)
+                    // Liquid glass replaces the two stacked bars with the single
+                    // component they are stacked to imitate: the now playing
+                    // controls dock into the tab bar rather than riding above it,
+                    // and the pair folds together on scroll. See [GlassNavBar].
+                    GlassNavBar(
+                        tabs = tabs,
+                        selectedIndex = selectedTab,
+                        onTabSelected = onTabSelected,
+                        scrollConnection = navBarScroll,
+                        song = player.song?.takeUnless { playerDocked },
+                        isPlaying = player.isPlaying,
+                        isLoading = player.isLoading,
+                        onPlayPause = {
+                            controller?.let { if (it.isPlaying) it.pause() else it.play() }
+                        },
+                        onNext = { controller?.seekToNextMediaItem() },
+                        onPrevious = { controller?.seekToPrevious() },
+                        onExpand = { showNowPlaying = true },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                } else Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        // Capped and centred rather than run to the page's edges
+                        // — see [FLOATING_BAR_MAX_WIDTH]. It sits on the Column
+                        // rather than on each bar so the two are held to the same
+                        // width and keep the shared left and right edge they have
+                        // on a phone. Before fillMaxWidth, so the fill has
+                        // already been bounded by the time it is applied.
+                        .widthIn(max = FLOATING_BAR_MAX_WIDTH)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    QueueActionNoticeHost(queueNotice)
+                    // Only where the player isn't already open beside the page:
+                    // a bar whose whole job is to stand in for the player, next
+                    // to the player, is a second copy of what is already there.
+                    player.song?.takeUnless { playerDocked }?.let { song ->
+                        MiniPlayer(
+                            song = song,
                             isPlaying = player.isPlaying,
                             isLoading = player.isLoading,
+                            hazeState = hazeState,
                             onPlayPause = {
                                 controller?.let { if (it.isPlaying) it.pause() else it.play() }
                             },
                             onNext = { controller?.seekToNextMediaItem() },
-                            onPrevious = { controller?.seekToPrevious() },
+                            onPrevious = {
+                                controller?.let { c ->
+                                    if (c.currentPosition > 3000L) {
+                                        c.seekTo(0L)
+                                    } else {
+                                        c.seekToPrevious()
+                                    }
+                                }
+                            },
                             onExpand = { showNowPlaying = true },
                             modifier = Modifier.fillMaxWidth(),
+                            playbackPosition = player.position,
+                            durationMs = player.durationMs,
+                            onQueueClick = { showNowPlaying = true },
+                            hasPrevious = player.hasPrevious,
+                            hasNext = player.hasNext,
                         )
-                    } else Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            // Capped and centred rather than run to the page's edges
-                            // — see [FLOATING_BAR_MAX_WIDTH]. It sits on the Column
-                            // rather than on each bar so the two are held to the same
-                            // width and keep the shared left and right edge they have
-                            // on a phone. Before fillMaxWidth, so the fill has
-                            // already been bounded by the time it is applied.
-                            .widthIn(max = FLOATING_BAR_MAX_WIDTH)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        QueueActionNoticeHost(queueNotice)
-                        // Only where the player isn't already open beside the page:
-                        // a bar whose whole job is to stand in for the player, next
-                        // to the player, is a second copy of what is already there.
-                        player.song?.takeUnless { playerDocked }?.let { song ->
-                            MiniPlayer(
-                                song = song,
-                                isPlaying = player.isPlaying,
-                                isLoading = player.isLoading,
-                                hazeState = hazeState,
-                                onPlayPause = {
-                                    controller?.let { if (it.isPlaying) it.pause() else it.play() }
-                                },
-                                onNext = { controller?.seekToNextMediaItem() },
-                                onPrevious = {
-                                    controller?.let { c ->
-                                        if (c.currentPosition > 3000L) {
-                                            c.seekTo(0L)
-                                        } else {
-                                            c.seekToPrevious()
-                                        }
-                                    }
-                                },
-                                onExpand = { showNowPlaying = true },
-                                modifier = Modifier.fillMaxWidth(),
-                                playbackPosition = player.position,
-                                durationMs = player.durationMs,
-                                onQueueClick = { showNowPlaying = true },
-                                hasPrevious = player.hasPrevious,
-                                hasNext = player.hasNext,
-                            )
-                            Spacer(Modifier.height(8.dp))
-                        }
-                        FloatingBottomBar(
-                            tabs = tabs,
-                            selectedIndex = selectedTab,
-                            hazeState = hazeState,
-                            onTabSelected = onTabSelected,
-                        )
+                        Spacer(Modifier.height(8.dp))
                     }
-                }
-
-                if (activeChatConversationId != null) {
-                    val fallbackUser = activeChatOtherUser
-                        ?: MessengerRepository.activeChatUser.collectAsStateWithLifecycle().value
-                        ?: MessengerUser("user", "user", "User")
-                    ChatScreen(
-                        conversationId = activeChatConversationId!!,
-                        otherUser = fallbackUser,
-                        onBack = {
-                            activeChatConversationId = null
-                            activeChatOtherUser = null
-                        },
+                    FloatingBottomBar(
+                        tabs = tabs,
+                        selectedIndex = selectedTab,
                         hazeState = hazeState,
+                        onTabSelected = onTabSelected,
                     )
-                }
-
-                if (showOwnProfile) {
-                    val currentUser by MessengerRepository.currentUser.collectAsStateWithLifecycle()
-                    currentUser?.let { me ->
-                        UserProfileDialog(
-                            user = me,
-                            isSelf = true,
-                            isBlocked = false,
-                            hazeState = hazeState,
-                            onDismiss = { showOwnProfile = false },
-                        )
-                    }
                 }
             }
 
@@ -4196,8 +4125,7 @@ private val DETAIL_TITLE_DROP = 320.dp
 private const val TAB_HOME = 0
 private const val TAB_EXPLORE = 1
 private const val TAB_LIBRARY = 2
-private const val TAB_MESSAGES = 3
-private const val TAB_SEARCH = 4
+private const val TAB_SEARCH = 3
 
 /**
  * What a tab's key is prefixed with in the content switcher above.

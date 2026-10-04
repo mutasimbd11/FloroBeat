@@ -12,7 +12,6 @@ enum class NotificationType {
     MAINTENANCE,
     FEATURE,
     IMPORTANT,
-    CHAT,
     UNKNOWN;
 
     companion object {
@@ -22,7 +21,6 @@ enum class NotificationType {
             "MAINTENANCE" -> MAINTENANCE
             "FEATURE" -> FEATURE
             "IMPORTANT" -> IMPORTANT
-            "CHAT", "MESSAGE" -> CHAT
             else -> UNKNOWN
         }
     }

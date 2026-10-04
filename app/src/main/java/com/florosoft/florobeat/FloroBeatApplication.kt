@@ -61,7 +61,6 @@ class FloroBeatApplication : Application(), SingletonImageLoader.Factory {
         AppSettings.init(this)
         com.florosoft.florobeat.data.HomeFeedCache.init(this)
         ListenTogether.init(this)
-        com.florosoft.florobeat.data.messenger.MessengerRepository.init(this)
         SourceRegistry.init(this)
         SearchHistory.init(this)
         LastPlayed.init(this)
