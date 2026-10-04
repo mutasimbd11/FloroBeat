@@ -846,7 +846,7 @@ object ListenTogether {
      * asks for an address.
      */
     private val DEFAULT_SERVER: String = BuildConfig.LISTEN_TOGETHER_SERVER.ifBlank {
-        "https://party.shongho.com"
+        "https://florobeat-party.onrender.com"
     }
     private const val PING_INTERVAL_MS = 15_000L
     private const val REPORT_INTERVAL_MS = 10_000L
