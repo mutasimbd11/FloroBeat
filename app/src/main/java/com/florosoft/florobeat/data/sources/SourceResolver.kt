@@ -12,6 +12,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.yield
 
 /**
  * Turns a queued track into an openable stream, using whichever source can
@@ -753,6 +754,7 @@ object SourceResolver {
                 val first = select {
                     running.forEach { candidate -> candidate.onAwait { candidate } }
                 }
+                yield()
                 // Anything that crossed the line while that one was being waited
                 // on is already sitting there. Folding those in costs no time at
                 // all and is what lets rank break a tie between two sources that
